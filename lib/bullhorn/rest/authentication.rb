@@ -41,8 +41,8 @@ module Authentication
     }
     res = auth_conn.get url, params
     location = res.headers['location']
-    return res.body if location.nil? #Return the error body
-    self.auth_code = CGI::parse(URI(location).query)["code"].first
+
+    self.auth_code = location.nil? ? nil : CGI::parse(URI(location).query)["code"].first
   end
 
   def retrieve_tokens
@@ -86,6 +86,8 @@ module Authentication
     params[:ttl] = ttl if ttl
     response = auth_conn.get url, params
     hash = JSON.parse(response.body)
+
+    raise SecurityError, hash unless hash["errorMessage"].nil?
 
     self.rest_token = hash['BhRestToken']
     self.rest_url = hash['restUrl']
