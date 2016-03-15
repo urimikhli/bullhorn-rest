@@ -33,6 +33,8 @@ module Bullhorn
           name = entity.to_s.classify
           plural = entity.to_s.pluralize
           name_plural = name.pluralize
+          history = entity.to_s+'_history'
+          history_name = history.classify
 
           if options[:owner_methods]
 
@@ -94,6 +96,15 @@ module Bullhorn
             res = @conn.get path, params
             obj = decorate_response JSON.parse(res.body)
             attach_next_page obj, options, path, conn     
+          end
+
+          define_method("query_#{history}") do |options={}|
+            # params = {:fields => '*', :count => '500', :orderBy => 'name'}.merge(options)
+            params = {:fields => '*', :count => '500'}.merge(options)
+            path = "query/#{history_name}"
+            res = @conn.get path, params
+            obj = decorate_response JSON.parse(res.body)
+            attach_next_page obj, options, path, conn
           end
 
           define_method(entity) do |id, options={}|
