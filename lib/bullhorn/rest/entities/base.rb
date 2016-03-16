@@ -98,6 +98,15 @@ module Bullhorn
             attach_next_page obj, options, path, conn     
           end
 
+          define_method("query_#{entity.to_s}") do |options={}|
+            # history is not plural. So need to be consistant with how history is used.
+            params = {:fields => '*', :count => '500'}.merge(options)
+            path = "query/#{name}"
+            res = @conn.get path, params
+            obj = decorate_response JSON.parse(res.body)
+            attach_next_page obj, options, path, conn
+          end
+
           define_method("query_#{history}") do |options={}|
             # params = {:fields => '*', :count => '500', :orderBy => 'name'}.merge(options)
             params = {:fields => '*', :count => '500'}.merge(options)
